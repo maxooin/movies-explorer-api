@@ -1,0 +1,28 @@
+{
+  "name": "movies-explorer-api",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Diplom backend",
+  "main": "app.js",
+  "scripts": {
+    "lint": "npx eslint .",
+    "start": "node app.js",
+    "dev": "nodemon app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/maxooin/movies-explorer-api.git"
+  },
+  "author": "Mikhail Kotin",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/maxooin/movies-explorer-api/issues"
+  },
+  "homepage": "https://github.com/maxooin/movies-explorer-api#readme",
+  "dependencies": {
+    "express": "^4.18.2"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.20"
+  }
+}
