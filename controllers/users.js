@@ -1,7 +1,11 @@
 import dotenv from 'dotenv';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 import NotFoundError from '../errors/NotFoundError.js';
 import BadRequestError from '../errors/BadRequestError.js';
 import User from '../models/users.js';
+import ConflictError from '../errors/ConflictError.js';
+import UnauthorizedError from '../errors/UnauthorizedError.js';
 
 dotenv.config();
 
@@ -58,4 +62,56 @@ export function updateUserInfo(req, res, next) {
         next(err);
       }
     });
+}
+
+export function createUser(req, res, next) {
+  const { email, password, name } = req.body;
+  bcrypt.hash(password, 10)
+    .then((hash) => User.create({
+      email, name, password: hash,
+    }))
+    .then((user) => {
+      const userOutOfPassword = user.toObject();
+      delete userOutOfPassword.password;
+      res.send(userOutOfPassword);
+    })
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        next(new BadRequestError(`Переданы некорректные данные при создании пользователя: ${Object.values(err.errors)[0].message}`));
+      } else if (err.code === 11000) {
+        next(new ConflictError('Данный email уже занят'));
+      } else {
+        next(err);
+      }
+    });
+}
+
+export function login(req, res, next) {
+  const {
+    email,
+    password,
+  } = req.body;
+  return User.findUserByCredentials(email, password)
+    .then((user) => {
+      const token = jwt.sign(
+        { _id: user._id },
+        NODE_ENV === 'production' ? JWT_SECRET : 'super-strong-secret',
+        { expiresIn: '7d' },
+      );
+      return res.cookie('jwt', token, {
+        maxAge: 3600000 * 24 * 7,
+        httpOnly: true,
+        sameSite: true,
+        secure: true,
+      }).send({ JWT: token });
+    })
+    .catch(() => {
+      next(new UnauthorizedError('Передан неверный логин или пароль'));
+    });
+}
+
+export function logout(req, res) {
+  res.clearCookie('jwt').send({
+    message: 'Вышли из аккаунта',
+  });
 }
