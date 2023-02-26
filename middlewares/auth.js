@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import UnauthorizedError from '../errors/UnauthorizedError.js';
+import { errorMessageAuth } from '../utils/constants.js';
 
 const {
   NODE_ENV,
@@ -16,12 +17,12 @@ function auth(req, res, next) {
     try {
       payload = jwt.verify(token, NODE_ENV === 'production' ? JWT_SECRET : 'super-strong-secret');
     } catch (e) {
-      next(new UnauthorizedError('Передан не верифицированый токен'));
+      next(new UnauthorizedError(errorMessageAuth.unauthorized));
     }
     req.user = payload;
     next();
   } else {
-    next(new UnauthorizedError('Отсутствует авторизационный заголовок или cookies'));
+    next(new UnauthorizedError(errorMessageAuth.cookie));
   }
 }
 

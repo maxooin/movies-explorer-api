@@ -22,6 +22,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     minlength: [2, 'Поле имя `{VALUE}` содержит менее 2 символов'],
     maxlength: [30, 'Поле имя `{VALUE}` содержит более 30 символов'],
+    required: [true, 'Поле name не заполнено'],
   },
 });
 

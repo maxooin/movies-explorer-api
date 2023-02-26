@@ -1,4 +1,5 @@
 import { constants } from 'http2';
+import { errorMessageRouters } from '../utils/constants.js';
 
 function centralizedError(err, req, res, next) {
   let {
@@ -7,7 +8,7 @@ function centralizedError(err, req, res, next) {
   } = err;
   if (!statusCode) {
     statusCode = constants.HTTP_STATUS_INTERNAL_SERVER_ERROR;
-    message = 'На сервере произошла ошибка';
+    message = errorMessageRouters.unknown;
   }
   res.status(statusCode)
     .send({ message });

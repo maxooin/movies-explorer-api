@@ -5,7 +5,7 @@ import NotFoundError from '../errors/NotFoundError.js';
 import BadRequestError from '../errors/BadRequestError.js';
 import User from '../models/users.js';
 import ConflictError from '../errors/ConflictError.js';
-import UnauthorizedError from '../errors/UnauthorizedError.js';
+import { errorMessageUser } from '../utils/constants.js';
 
 dotenv.config();
 
@@ -20,12 +20,12 @@ function findUserById(id, res, next) {
       if (user) {
         res.send(user);
       } else {
-        throw new NotFoundError(`Пользователь с указанным _id=${id} не найден.`);
+        throw new NotFoundError(errorMessageUser.notFound);
       }
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        next(new BadRequestError(`Переданы некорректные данные: _id=${id} при запросе информации о пользователе.`));
+        next(new BadRequestError(errorMessageUser.badRequest));
       } else {
         next(err);
       }
@@ -52,12 +52,14 @@ export function updateUserInfo(req, res, next) {
       if (user) {
         res.send(user);
       } else {
-        throw new NotFoundError(`Пользователь c указанным _id=${req.user._id} не найден.`);
+        throw new NotFoundError(errorMessageUser.notFound);
       }
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new BadRequestError(`Переданы некорректные данные при обновлении пользователя: ${Object.values(err.errors)[0].message}`));
+        next(new BadRequestError(errorMessageUser.badRequestUpdate));
+      } else if (err.code === 11000) {
+        next(new ConflictError(errorMessageUser.conflict));
       } else {
         next(err);
       }
@@ -77,9 +79,9 @@ export function createUser(req, res, next) {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new BadRequestError(`Переданы некорректные данные при создании пользователя: ${Object.values(err.errors)[0].message}`));
+        next(new BadRequestError(errorMessageUser.badRequestCreate));
       } else if (err.code === 11000) {
-        next(new ConflictError('Данный email уже занят'));
+        next(new ConflictError(errorMessageUser.conflict));
       } else {
         next(err);
       }
@@ -105,9 +107,7 @@ export function login(req, res, next) {
         secure: true,
       }).send({ JWT: token });
     })
-    .catch(() => {
-      next(new UnauthorizedError('Передан неверный логин или пароль'));
-    });
+    .catch(next);
 }
 
 export function logout(req, res) {

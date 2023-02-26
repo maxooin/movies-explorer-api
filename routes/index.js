@@ -5,6 +5,7 @@ import NotFoundError from '../errors/NotFoundError.js';
 import auth from '../middlewares/auth.js';
 import { validateCreateUser, validateLogin } from '../validators/users.js';
 import { createUser, login, logout } from '../controllers/users.js';
+import { errorMessageRouters } from '../utils/constants.js';
 
 const router = express();
 
@@ -16,7 +17,7 @@ router.use('/users', usersRouter);
 router.use('/movies', movieRouter);
 router.post('/signout', logout);
 router.all('*', (req, res, next) => {
-  next(new NotFoundError('Маршрут не найден'));
+  next(new NotFoundError(errorMessageRouters.notFound));
 });
 
 export default router;
