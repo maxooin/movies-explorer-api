@@ -1,5 +1,5 @@
 const allowedCors = [
-  'http://localhost:3001',
+  'http://localhost:3000',
 ];
 
 export const cors = (req, res, next) => {
