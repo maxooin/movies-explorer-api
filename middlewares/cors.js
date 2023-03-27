@@ -1,4 +1,6 @@
 const allowedCors = [
+  'http://diplom.maxooin.nomoredomains.work',
+  'https://diplom.maxooin.nomoredomains.work',
   'http://localhost:3000',
 ];
 
